@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Какой ты пирог?</title>
+    <style>
+        :root{
+            --bg:#0b1020; --card:#121a33; --muted:#96a0c6; --text:#eef2ff;
+            --accent:#7c5cff; --accent2:#38bdf8; --ok:#22c55e; --border:rgba(255,255,255,.08);
+            --shadow: 0 16px 50px rgba(0,0,0,.45);
+        }
+        *{box-sizing:border-box}
+        body{
+            margin:0; min-height:100svh; color:var(--text);
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+            background:
+                    radial-gradient(1200px 800px at 20% 10%, rgba(124,92,255,.35), transparent 55%),
+                    radial-gradient(900px 700px at 90% 20%, rgba(56,189,248,.25), transparent 55%),
+                    radial-gradient(900px 700px at 50% 110%, rgba(34,197,94,.12), transparent 55%),
+                    var(--bg);
+            display:grid; place-items:center; padding:24px;
+        }
+        .wrap{width:min(920px, 100%)}
+        header{
+            display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
+            margin-bottom:16px;
+        }
+        .brand{
+            display:flex; flex-direction:column; gap:6px;
+        }
+        .title{
+            font-size: clamp(24px, 4vw, 36px);
+            line-height:1.05; letter-spacing:-.02em; margin:0;
+        }
+        .subtitle{margin:0; color:var(--muted); font-size:14px}
+        .chip{
+            border:1px solid var(--border); color:var(--muted);
+            padding:10px 12px; border-radius:999px; font-size:13px;
+            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,.03);
+            align-self:flex-start;
+        }
+        .card{
+            border:1px solid var(--border);
+            background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+            border-radius:18px; box-shadow: var(--shadow);
+            overflow:hidden;
+        }
+        .topbar{
+            padding:14px 16px;
+            display:flex; align-items:center; justify-content:space-between; gap:12px;
+            border-bottom:1px solid var(--border);
+            background: rgba(0,0,0,.12);
+        }
+        .progress{
+            width:100%; height:10px; border-radius:999px; background: rgba(255,255,255,.06);
+            overflow:hidden; border:1px solid rgba(255,255,255,.06);
+        }
+        .bar{
+            height:100%;
+            width:0%;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            border-radius:999px;
+            transition: width .35s ease;
+        }
+        .meta{display:flex; align-items:center; gap:10px; color:var(--muted); font-size:13px; white-space:nowrap}
+        .body{padding:18px}
+        .q{
+            font-size:18px; margin:0 0 14px 0;
+            letter-spacing:-.01em;
+        }
+        .answers{display:grid; gap:10px}
+        .btn{
+            width:100%;
+            padding:14px 14px;
+            border-radius:14px;
+            border:1px solid var(--border);
+            background: rgba(255,255,255,.04);
+            color:var(--text);
+            text-align:left;
+            cursor:pointer;
+            transition: transform .06s ease, background .2s ease, border-color .2s ease;
+            display:flex; align-items:center; justify-content:space-between; gap:12px;
+        }
+        .btn:hover{background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.12)}
+        .btn:active{transform: translateY(1px)}
+        .kbd{
+            font-size:12px; color:var(--muted);
+            border:1px solid rgba(255,255,255,.12);
+            padding:4px 8px; border-radius:10px;
+            background: rgba(0,0,0,.18);
+            flex:0 0 auto;
+        }
+        .footer{
+            margin-top:14px;
+            display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+            color:var(--muted); font-size:13px;
+        }
+        .ghost{
+            border:1px solid var(--border);
+            background: rgba(255,255,255,.02);
+            color:var(--muted);
+            padding:10px 12px;
+            border-radius:12px;
+            cursor:pointer;
+            transition: background .2s ease, border-color .2s ease;
+        }
+        .ghost:hover{background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.12)}
+        .hide{display:none !important}
+
+        /* Result */
+        .result{
+            display:grid; gap:12px;
+        }
+        .badgeRow{display:flex; flex-wrap:wrap; gap:8px}
+        .badge{
+            padding:8px 10px;
+            border-radius:999px;
+            border:1px solid rgba(255,255,255,.12);
+            background: rgba(255,255,255,.04);
+            font-size:13px;
+        }
+        .hero{
+            padding:16px;
+            border-radius:16px;
+            border:1px solid rgba(255,255,255,.12);
+            background:
+                    radial-gradient(600px 200px at 20% 0%, rgba(124,92,255,.25), transparent 60%),
+                    rgba(0,0,0,.15);
+        }
+        .hero h2{margin:0 0 6px 0; font-size:22px; letter-spacing:-.02em}
+        .hero p{margin:0; color:var(--muted); line-height:1.5}
+        .actions{display:flex; gap:10px; flex-wrap:wrap}
+        .primary{
+            border:1px solid rgba(124,92,255,.55);
+            background: linear-gradient(90deg, rgba(124,92,255,.9), rgba(56,189,248,.75));
+            color:#071022;
+            font-weight:700;
+            padding:12px 14px;
+            border-radius:12px;
+            cursor:pointer;
+        }
+        .primary:active{transform: translateY(1px)}
+        .small{font-size:12px; color:var(--muted)}
+        @media (prefers-reduced-motion: reduce){
+            .bar, .btn, .ghost{transition:none}
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <header>
+        <div class="brand">
+            <h1 class="title">Какой ты пирог?</h1>
+            <p class="subtitle">Ответь на 7 вопросов — узнаешь, какой ты пирог, с чем ты и какой ты по характеру.</p>
+        </div>
+        <div class="chip" id="modeChip">Квиз • без регистрации</div>
+    </header>
+
+    <main class="card">
+        <div class="topbar">
+            <div class="progress" aria-label="Прогресс">
+                <div class="bar" id="bar"></div>
+            </div>
+            <div class="meta">
+                <span id="stepText">1/7</span>
+            </div>
+        </div>
+
+        <div class="body">
+            <section id="quiz">
+                <p class="q" id="qText"></p>
+                <div class="answers" id="answers"></div>
+
+                <div class="footer">
+                    <button class="ghost" id="backBtn" type="button">Назад</button>
+                    <div class="small" id="hint">Подсказка: можно нажимать 1–4 на клавиатуре</div>
+                    <button class="ghost" id="resetBtn" type="button">Сброс</button>
+                </div>
+            </section>
+
+            <section id="result" class="hide">
+                <div class="result">
+                    <div class="badgeRow">
+                        <span class="badge" id="badgePie"></span>
+                        <span class="badge" id="badgeWith"></span>
+                        <span class="badge" id="badgeVibe"></span>
+                    </div>
+
+                    <div class="hero">
+                        <h2 id="resTitle"></h2>
+                        <p id="resText"></p>
+                    </div>
+
+                    <div class="actions">
+                        <button class="primary" id="againBtn" type="button">Пройти ещё раз</button>
+                        <button class="ghost" id="copyBtn" type="button">Скопировать результат</button>
+                    </div>
+
+                    <p class="small" id="copyStatus"></p>
+                </div>
+            </section>
+        </div>
+    </main>
+</div>
+
+<script>
+    const $ = (s, el=document) => el.querySelector(s);
+
+    // Архетипы пирога
+    const pies = {
+        sweet: { name: "Сладкий ягодный пирог", desc: "Тёплый, дружелюбный, заряжаешь уютом и собираешь людей вокруг." },
+        meat:  { name: "Сытный мясной пирог",   desc: "Практичный, надёжный, любишь конкретику и умеешь держать удар." },
+        cheese:{ name: "Сырный пирог",          desc: "Умный гурман: ценишь качество, баланс и тонкие детали." },
+        veggie:{ name: "Овощной пирог",         desc: "Лёгкий на подъём: гибкий, любопытный, всегда за свежие идеи." }
+    };
+
+    // "С чем ты"
+    const withs = {
+        tea:   "с чаем",
+        coffee:"с кофе",
+        milk:  "со стаканом молока",
+        compote:"с компотом",
+        soda:  "с газировкой",
+        cocoa: "с какао"
+    };
+
+    // "Какой ты" по характеру/вибе
+    const vibes = {
+        calm:  "спокойный пирог",
+        spicy: "дерзкий пирог",
+        cozy:  "уютный пирог",
+        chaos: "пирог-хаос (в хорошем смысле)"
+    };
+
+    // 7 вопросов, у ответа есть вклад в pie/with/vibe (скором)
+    const questions = [
+        {
+            q: "Какой у тебя режим по жизни?",
+            a: [
+                { t:"План и порядок",     s:{pie:{meat:2, cheese:1}, vibe:{calm:2}} },
+                { t:"По настроению",      s:{pie:{sweet:2, veggie:1}, vibe:{cozy:1, chaos:1}} },
+                { t:"Резко, быстро",      s:{pie:{meat:1, cheese:1}, vibe:{spicy:2}} },
+                { t:"Смешать всё и посмотреть", s:{pie:{veggie:2, sweet:1}, vibe:{chaos:2}} },
+            ]
+        },
+        {
+            q: "Что тебе ближе в еде?",
+            a: [
+                { t:"Сытно и просто",     s:{pie:{meat:2}, with:{coffee:1}} },
+                { t:"Сладко и нежно",     s:{pie:{sweet:2}, with:{tea:1}} },
+                { t:"Сложный вкус",       s:{pie:{cheese:2}, with:{coffee:1}} },
+                { t:"Легко и свежо",      s:{pie:{veggie:2}, with:{compote:1}} },
+            ]
+        },
+        {
+            q: "Как ты реагируешь на внезапный форс-мажор?",
+            a: [
+                { t:"Чиню по чек-листу",  s:{pie:{meat:1, cheese:1}, vibe:{calm:2}} },
+                { t:"Шучу и разруливаю",  s:{pie:{sweet:1}, vibe:{cozy:1, chaos:1}} },
+                { t:"Давлю газ",          s:{pie:{meat:1}, vibe:{spicy:2}} },
+                { t:"Импровизирую гениально", s:{pie:{veggie:1, cheese:1}, vibe:{chaos:2}} },
+            ]
+        },
+        {
+            q: "Твой идеальный вечер?",
+            a: [
+                { t:"Кино и плед",        s:{pie:{sweet:1}, with:{cocoa:1}, vibe:{cozy:2}} },
+                { t:"Встреча и разговоры",s:{pie:{sweet:1, veggie:1}, with:{tea:1}, vibe:{cozy:1}} },
+                { t:"Дела и результаты",  s:{pie:{meat:2}, with:{coffee:1}, vibe:{calm:1}} },
+                { t:"Спонтанная движуха", s:{pie:{veggie:2}, with:{soda:1}, vibe:{chaos:2}} },
+            ]
+        },
+        {
+            q: "Какая роль тебе чаще всего достаётся в компании?",
+            a: [
+                { t:"Опора и организатор",s:{pie:{meat:2}, vibe:{calm:1}} },
+                { t:"Душа и атмосфера",   s:{pie:{sweet:2}, vibe:{cozy:2}} },
+                { t:"Эксперт по деталям", s:{pie:{cheese:2}, vibe:{calm:1}} },
+                { t:"Генератор идей",     s:{pie:{veggie:2}, vibe:{chaos:1}} },
+            ]
+        },
+        {
+            q: "Какой вкус тебе ближе?",
+            a: [
+                { t:"Солёный",            s:{pie:{meat:1, cheese:1}} },
+                { t:"Сладкий",            s:{pie:{sweet:2}} },
+                { t:"Умами",              s:{pie:{cheese:2}} },
+                { t:"Кисло-свежий",       s:{pie:{veggie:2}} },
+            ]
+        },
+        {
+            q: "И последнее: чем запьём пирог?",
+            a: [
+                { t:"Чай",                s:{with:{tea:2}, vibe:{cozy:1}} },
+                { t:"Кофе",               s:{with:{coffee:2}, vibe:{spicy:1}} },
+                { t:"Молоко",             s:{with:{milk:2}, vibe:{calm:1}} },
+                { t:"Компот",             s:{with:{compote:2}, vibe:{cozy:1}} },
+            ]
+        }
+    ];
+
+    const state = {
+        i: 0,
+        picks: Array(questions.length).fill(null),
+        score: {
+            pie: { sweet:0, meat:0, cheese:0, veggie:0 },
+            with:{ tea:0, coffee:0, milk:0, compote:0, soda:0, cocoa:0 },
+            vibe:{ calm:0, spicy:0, cozy:0, chaos:0 }
+        }
+    };
+
+    const bar = $("#bar");
+    const stepText = $("#stepText");
+    const qText = $("#qText");
+    const answers = $("#answers");
+    const backBtn = $("#backBtn");
+    const resetBtn = $("#resetBtn");
+
+    const quiz = $("#quiz");
+    const result = $("#result");
+    const badgePie = $("#badgePie");
+    const badgeWith = $("#badgeWith");
+    const badgeVibe = $("#badgeVibe");
+    const resTitle = $("#resTitle");
+    const resText = $("#resText");
+    const againBtn = $("#againBtn");
+    const copyBtn = $("#copyBtn");
+    const copyStatus = $("#copyStatus");
+
+    const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+    const entries = obj => Object.entries(obj);
+
+    const applyDelta = (bucket, delta, sign=+1) => {
+        if (!delta) return;
+        for (const [k,v] of entries(delta)) state.score[bucket][k] = (state.score[bucket][k] || 0) + sign*v;
+    };
+
+    const applyAnswer = (idx, ansIndex, sign=+1) => {
+        const s = questions[idx].a[ansIndex].s || {};
+        applyDelta("pie",  s.pie,  sign);
+        applyDelta("with", s.with, sign);
+        applyDelta("vibe", s.vibe, sign);
+    };
+
+    const pickKey = (bucket) => {
+        const kv = entries(state.score[bucket]);
+        kv.sort((a,b) => b[1] - a[1]);
+        return kv[0][0];
+    };
+
+    const render = () => {
+        const total = questions.length;
+        const i = state.i;
+
+        const progress = clamp(((i) / total) * 100, 0, 100);
+        bar.style.width = progress + "%";
+        stepText.textContent = `${i+1}/${total}`;
+        backBtn.disabled = i === 0;
+
+        const { q, a } = questions[i];
+        qText.textContent = q;
+        answers.innerHTML = "";
+
+        a.forEach((opt, idx) => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "btn";
+            btn.innerHTML = `<span>${opt.t}</span><span class="kbd">${idx+1}</span>`;
+            btn.onclick = () => choose(idx);
+            answers.appendChild(btn);
+        });
+    };
+
+    const choose = (ansIndex) => {
+        const i = state.i;
+
+        // если уже отвечали — откатить старые очки
+        const prev = state.picks[i];
+        if (prev !== null) applyAnswer(i, prev, -1);
+
+        state.picks[i] = ansIndex;
+        applyAnswer(i, ansIndex, +1);
+
+        if (i < questions.length - 1) {
+            state.i++;
+            render();
+        } else {
+            showResult();
+        }
+    };
+
+    const showResult = () => {
+        bar.style.width = "100%";
+        stepText.textContent = `${questions.length}/${questions.length}`;
+
+        const pieKey = pickKey("pie");
+        const withKey = pickKey("with");
+        const vibeKey = pickKey("vibe");
+
+        const pie = pies[pieKey];
+        const withText = withs[withKey] || "с чаем";
+        const vibeText = vibes[vibeKey] || "уютный пирог";
+
+        badgePie.textContent = pie.name;
+        badgeWith.textContent = withText;
+        badgeVibe.textContent = vibeText;
+
+        resTitle.textContent = `Ты — ${pie.name}, ${withText}. И вообще ты ${vibeText}.`;
+        resText.textContent =
+            `${pie.desc} ` +
+            `Тебе особенно идут моменты “вкусно и вовремя”: когда ты выбираешь своё и не притворяешься чужим рецептом.`;
+
+        quiz.classList.add("hide");
+        result.classList.remove("hide");
+        copyStatus.textContent = "";
+    };
+
+    const resetAll = () => {
+        state.i = 0;
+        state.picks.fill(null);
+        state.score = {
+            pie: { sweet:0, meat:0, cheese:0, veggie:0 },
+            with:{ tea:0, coffee:0, milk:0, compote:0, soda:0, cocoa:0 },
+            vibe:{ calm:0, spicy:0, cozy:0, chaos:0 }
+        };
+        result.classList.add("hide");
+        quiz.classList.remove("hide");
+        bar.style.width = "0%";
+        stepText.textContent = `1/${questions.length}`;
+        render();
+    };
+
+    backBtn.onclick = () => {
+        if (state.i === 0) return;
+        state.i--;
+        render();
+    };
+
+    resetBtn.onclick = resetAll;
+    againBtn.onclick = resetAll;
+
+    copyBtn.onclick = async () => {
+        const text = `${resTitle.textContent}\n\n${resText.textContent}\n\n(квиз “Какой ты пирог?”)`;
+        try{
+            await navigator.clipboard.writeText(text);
+            copyStatus.textContent = "Скопировано в буфер обмена.";
+        }catch{
+            // fallback
+            const ta = document.createElement("textarea");
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand("copy");
+            ta.remove();
+            copyStatus.textContent = "Скопировано (через запасной режим).";
+        }
+    };
+
+    // Горячие клавиши 1–4
+    window.addEventListener("keydown", (e) => {
+        if (result && !result.classList.contains("hide")) return;
+        const n = Number(e.key);
+        if (n >= 1 && n <= 4) choose(n-1);
+    });
+
+    render();
+</script>
+</body>
+</html>
